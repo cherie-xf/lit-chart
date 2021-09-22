@@ -7,6 +7,12 @@ export const getFormattedValue = (value: number, formatter: string): string => {
     case 'number':
       resStr = new Intl.NumberFormat().format(value);
       break;
+    case 'bignumber':
+      resStr = formatBigNumber(value)
+      break;
+    case 'kbps':
+      resStr = formatKbps(value)
+      break;
     case 'percent':
       resStr = value + '%';
       break;
@@ -45,6 +51,21 @@ export function formatBytes(bytes: number, options: FormatBytesOptions) {
 
   return `${prefix}${numString} ${units[i]}`;
 }
+
+export const formatKbps = (value: number, isByte?: boolean): string => {
+  const num = isByte ? value * 8 : value;
+  const res = formatBytes(num, {});
+  return res.substr(0, res.length - 1) + 'bps';
+};
+
+export const formatBigNumber = (value: number, decimalPlaces?: number): string => {
+  const decimal = decimalPlaces || 1;
+  if (value < 1000) return value.toString();
+  else if (value >= 1000 && value < 1000000) return (value / 1000).toFixed(decimal) + 'k';
+  else if (value >= 1000000 && value < 1000000000) return (value / 1000000).toFixed(decimal) + 'M';
+  else return (value / 1000000000).toFixed(decimal) + 'B';
+};
+
 
 interface FormatBytesOptions {
   unit?: 'bytes' | 'bits';

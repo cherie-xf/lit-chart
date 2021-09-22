@@ -20,12 +20,11 @@ import {
   twoDirectionsLine,
   twoDirectionsArea,
   sankeyChart
-} from './chart-options';
-import { EChartOption } from 'echarts';
-import * as echarts from 'echarts';
-import isEqual from 'fast-deep-equal';
-import { ChartData, radarIndicator, Radar, ChartOption } from './chart.types';
-
+} from "./chart-options";
+import { EChartOption } from "echarts";
+import * as echarts from "echarts";
+import isEqual from "fast-deep-equal";
+import { ChartData, radarIndicator, Radar, ChartOption } from "./chart.types";
 
 @customElement("lit-chart")
 export default class LitChart extends LitElement {
@@ -38,13 +37,15 @@ export default class LitChart extends LitElement {
       height: 100%;
     }
   `;
-  @query('[part="base"]') base: HTMLElement;
+  @query("[part=\"base\"]") base: HTMLElement;
   /** Theme to be */
   @property({ type: String, reflect: true }) theme = undefined;
   /** Chart type, series.type eg: 'line', 'pie'*/
-  @property({ type: String, reflect: true }) type: string | undefined = undefined; // default chart type is line
+  @property({ type: String, reflect: true }) type:
+    | string
+    | undefined = undefined; // default chart type is line
   /** When dataset is used, seriesLayoutBy specifies whether the column or the row of dataset is mapped to the series, namely, the series is "layout" on columns or rows */
-  @property({ type: String, reflect: true }) seriesLayoutBy = 'column'; // 'column' | 'row'
+  @property({ type: String, reflect: true }) seriesLayoutBy = "column"; // 'column' | 'row'
   /** Configuration item and data. Please refer to [configuration item manual](https://echarts.apache.org/en/option.html#title) for more information */
   @property({ type: Object, reflect: true }) option = {} as ChartOption;
   /** For preset option configuration item and data. Please refer to [configuration item manual](https://echarts.apache.org/en/option.html#title) for more information */
@@ -55,14 +56,20 @@ export default class LitChart extends LitElement {
    *  If chartDataset is set, chartData will be ignored.
    *  If you want carrying style in data, you can chose this way
    */
-  @property({ type: Object, reflect: true }) chartData: ChartData<EChartOption<EChartOption.Series>> | undefined;
+  @property({ type: Object, reflect: true }) chartData:
+    | ChartData<EChartOption<EChartOption.Series>>
+    | undefined;
   /** Shows loading animation, If set false after previous true value, will hide current loading animation*/
-  @property({ type: Boolean, reflect: true }) showLoading: boolean | string = false;
+  @property({ type: Boolean, reflect: true }) showLoading:
+    | boolean
+    | string = false;
   /** Shows No Data and stop loading animation*/
   @property({ type: Boolean, reflect: true }) noData = false;
   /** Initialize chart Instance chart configurationsLines in loaded buffers. Please refer to [configuration details](https://echarts.apache.org/en/api.html#echarts.init)*/
   @property({ type: Object, reflect: true }) opts = {};
-  @property({ reflect: true }) onChartReady: ((o: echarts.ECharts) => void )| undefined;
+  @property({ reflect: true }) onChartReady:
+    | ((o: echarts.ECharts) => void)
+    | undefined;
   /** Call back function after chart init return with echarts instance, you can get echarts public api through this instance, like: "getOption"*/
   @property({ type: Object, reflect: true }) onEvents = {};
   @property({ reflect: true }) chart: echarts.ECharts | undefined;
@@ -71,23 +78,26 @@ export default class LitChart extends LitElement {
   /** pie chart center title*/
   @property({ type: Boolean, reflect: true }) pieTitle = {};
   /** lenged format string, e.g. '{percent} {name} ({value|bytes})' */
-  @property({ type: String, reflect: true }) legendFormat = '';
+  @property({ type: String, reflect: true }) legendFormat = "";
   /** axisLabel format string, e.g. 'percent' */
-  @property({ type: String, reflect: true }) axisLabelFormat = '';
+  @property({ type: String, reflect: true }) axisLabelFormat = "";
   /** series label format string, e.g. 'percent' */
-  @property({ type: String, reflect: true }) labelFormat = '';
+  @property({ type: String, reflect: true }) labelFormat = "";
   /** visualMap is a type of component for visual encoding */
   @property({ reflect: true }) visualMap: EChartOption.VisualMap | undefined;
   /** Coordinate for radar charts */
-  @property({ reflect: true }) radar: Radar| undefined;
+  @property({ reflect: true }) radar: Radar | undefined;
 
- firstUpdated() {
+  firstUpdated() {
     // backward compatibility
     // no type setting will use given option
     if (this.type) {
       this.option = this.getChartOption(this.type);
       if (this.option.series && this.seriesLayoutBy) {
-        this.option.series = this.updateSeriesLayout(this.option.series, this.seriesLayoutBy);
+        this.option.series = this.updateSeriesLayout(
+          this.option.series,
+          this.seriesLayoutBy
+        );
       }
     }
     this.showLoading = true;
@@ -102,9 +112,13 @@ export default class LitChart extends LitElement {
       seriesLayoutBy: layoutBy
     }));
   }
-  private multiplySeriesByData(series: Array<Object>, source: Array<any[]>, layoutBy: string) {
+  private multiplySeriesByData(
+    series: Array<Object>,
+    source: Array<any[]>,
+    layoutBy: string
+  ) {
     let obj = series[0];
-    let num = layoutBy === 'row' ? source.length - 1 : source[0].length - 1;
+    let num = layoutBy === "row" ? source.length - 1 : source[0].length - 1;
     let resArr = [];
     if (num > 0) {
       for (let i = 0; i < num; i++) {
@@ -115,11 +129,20 @@ export default class LitChart extends LitElement {
   }
 
   updated(properties: PropertyValues) {
-    if (this.type && properties.has('type') && properties.get('type') !== this.type) {
+    if (
+      this.type &&
+      properties.has("type") &&
+      properties.get("type") !== this.type
+    ) {
       const chartOption = this.getChartOption(this.type);
-      this.option = Object.keys(this.presetOpt).length ? { ...chartOption, ...this.presetOpt } : chartOption;
+      this.option = Object.keys(this.presetOpt).length
+        ? { ...chartOption, ...this.presetOpt }
+        : chartOption;
       if (this.option.series && this.seriesLayoutBy) {
-        this.option.series = this.updateSeriesLayout(this.option.series, this.seriesLayoutBy);
+        this.option.series = this.updateSeriesLayout(
+          this.option.series,
+          this.seriesLayoutBy
+        );
       }
       if (this.chartDataset) {
         let source = this.chartDataset.source;
@@ -128,12 +151,19 @@ export default class LitChart extends LitElement {
           source &&
           Array.isArray(source) &&
           source.length &&
-          !['twoDirectionsLine', 'twoDirectionsArea', 'radar'].includes(this.type)
+          !["twoDirectionsLine", "twoDirectionsArea", "radar"].includes(
+            this.type
+          )
         ) {
-          this.option.series = this.multiplySeriesByData(this.option.series, source, this.seriesLayoutBy);
+          this.option.series = this.multiplySeriesByData(
+            this.option.series,
+            source,
+            this.seriesLayoutBy
+          );
         }
         this.option.dataset = this.chartDataset;
-        this.noData = source && Array.isArray(source) && source.length ? false : true;
+        this.noData =
+          source && Array.isArray(source) && source.length ? false : true;
       } else if (this.chartData) {
         this.option = this.getOptionByData(this.type)(this.chartData);
         this.showLoading = false;
@@ -144,12 +174,13 @@ export default class LitChart extends LitElement {
 
     if (
       this.chartDataset &&
-      properties.has('chartDataset') &&
-      !isEqual(properties.get('chartDataset'), this.chartDataset)
+      properties.has("chartDataset") &&
+      !isEqual(properties.get("chartDataset"), this.chartDataset)
     ) {
       let source = this.chartDataset.source;
       this.showLoading = false;
-      this.noData = source && Array.isArray(source) && source.length ? false : true;
+      this.noData =
+        source && Array.isArray(source) && source.length ? false : true;
       if (this.noData) {
         this.option.dataset = this.chartDataset;
         return;
@@ -159,16 +190,26 @@ export default class LitChart extends LitElement {
         source &&
         Array.isArray(source) &&
         source.length &&
-        !['twoDirectionsLine', 'twoDirectionsArea', 'radar', 'sankey'].includes(this.type)
+        !["twoDirectionsLine", "twoDirectionsArea", "radar", "sankey"].includes(
+          this.type
+        )
       ) {
-        this.option.series = this.multiplySeriesByData(this.option.series, source, this.seriesLayoutBy);
+        this.option.series = this.multiplySeriesByData(
+          this.option.series,
+          source,
+          this.seriesLayoutBy
+        );
       }
       let ov = { ...this.option, dataset: this.chartDataset };
-      if (this.type === 'radar' && !(this.radar && this.radar.indicator)) {
+      if (this.type === "radar" && !(this.radar && this.radar.indicator)) {
         ov.radar = this.getRadarFromDataset(this.chartDataset);
       }
-      if (this.type === 'sankey') {
-        ov = this.getOptionByChartdataset(this.type)(this.chartDataset, this.theme, this.labelFormat);
+      if (this.type === "sankey") {
+        ov = this.getOptionByChartdataset(this.type)(
+          this.chartDataset,
+          this.theme,
+          this.labelFormat
+        );
       }
       this.option = Object.assign({}, ov);
     }
@@ -176,27 +217,37 @@ export default class LitChart extends LitElement {
       this.type &&
       this.chartData &&
       !this.chartDataset &&
-      properties.has('chartData') &&
-      !isEqual(properties.get('chartData'), this.chartData)
+      properties.has("chartData") &&
+      !isEqual(properties.get("chartData"), this.chartData)
     ) {
       this.option = this.getOptionByData(this.type)(this.chartData);
       this.showLoading = false;
     }
     if (
-      this.type === 'bar' &&
-      properties.has('barHorizontal') &&
-      properties.get('barHorizontal') !== undefined &&
-      this.barHorizontal !== properties.get('barHorizontal')
+      this.type === "bar" &&
+      properties.has("barHorizontal") &&
+      properties.get("barHorizontal") !== undefined &&
+      this.barHorizontal !== properties.get("barHorizontal")
     ) {
-      const xAxis = { ...this.option.xAxis };
-      const yAxis = { ...this.option.yAxis };
-      const ov = { ...this.option, xAxis: yAxis, yAxis: xAxis };
+      // const xAxis = { ...this.option.xAxis };
+      // const yAxis = { ...this.option.yAxis };
+      // const ov = { ...this.option, xAxis: yAxis, yAxis: xAxis };
+      const xAxis = { ...this.option.xAxis } as EChartOption.YAxis;
+      const yAxis = { ...this.option.yAxis } as EChartOption.XAxis;
+      const nRotate = this.barHorizontal ? 0 : 15;
+      const nX = yAxis.axisLabel
+        ? { ...yAxis, axisLabel: { ...yAxis.axisLabel, rotate: nRotate } }
+        : yAxis;
+      const nY = xAxis.axisLabel
+        ? { ...xAxis, axisLabel: { ...xAxis.axisLabel, rotate: nRotate } }
+        : xAxis;
+      const ov = { ...this.option, xAxis: nX, yAxis: nY };
       this.option = Object.assign({}, ov);
     }
     if (
-      properties.has('pieTitle') &&
-      (this.type === 'pie' || this.type === 'donut') &&
-      !isEqual(properties.get('pieTitle'), this.pieTitle)
+      properties.has("pieTitle") &&
+      (this.type === "pie" || this.type === "donut") &&
+      !isEqual(properties.get("pieTitle"), this.pieTitle)
     ) {
       const ov = {
         ...this.option,
@@ -210,22 +261,33 @@ export default class LitChart extends LitElement {
     if (
       this.type &&
       this.legendFormat &&
-      (properties.has('type') || properties.has('legendFormat') || properties.has('chartDataset'))
+      (properties.has("type") ||
+        properties.has("legendFormat") ||
+        properties.has("chartDataset"))
     ) {
       let source = this.chartDataset?.source;
       if (source && Array.isArray(source) && source.length) {
         const handle = this.getLegendFormatter(this.type);
-        const legendFormatter = handle ? handle(this.legendFormat, this.chartDataset, this.seriesLayoutBy) : undefined;
-        const ov = { ...this.option, legend: { ...this.option.legend, formatter: legendFormatter } };
+        const legendFormatter = handle
+          ? handle(this.legendFormat, this.chartDataset, this.seriesLayoutBy)
+          : undefined;
+        const ov = {
+          ...this.option,
+          legend: { ...this.option.legend, formatter: legendFormatter }
+        };
         this.option = Object.assign({}, ov);
       }
     }
-    if (this.type && this.axisLabelFormat && (properties.has('axisLabelFormat') || properties.has('type'))) {
-      const formatterStrArr = this.axisLabelFormat.split('|');
+    if (
+      this.type &&
+      this.axisLabelFormat &&
+      (properties.has("axisLabelFormat") || properties.has("type"))
+    ) {
+      const formatterStrArr = this.axisLabelFormat.split("|");
       const handle = this.getAxisLabelFormatter(this.type);
       let ov = { ...this.option };
       if (
-        ['twoDirectionsLine', 'twoDirectionsArea'].includes(this.type) &&
+        ["twoDirectionsLine", "twoDirectionsArea"].includes(this.type) &&
         formatterStrArr.length > 1 &&
         Array.isArray(ov.yAxis)
       ) {
@@ -234,24 +296,40 @@ export default class LitChart extends LitElement {
           return { ...obj, axisLabel: { formatter: labelFormatters[idx] } };
         });
       } else {
-        const labelFormatter = handle ? handle(this.axisLabelFormat) : undefined;
+        const labelFormatter = handle
+          ? handle(this.axisLabelFormat)
+          : undefined;
         if (Array.isArray(ov.yAxis) && !ov.yAxis.some(obj => obj.type)) {
           ov.yAxis = ov.yAxis.map(obj => {
-            return Object.keys(obj).includes('type') ? obj : { ...obj, axisLabel: { formatter: labelFormatter } };
+            return Object.keys(obj).includes("type")
+              ? obj
+              : { ...obj, axisLabel: { formatter: labelFormatter } };
           });
         } else if (Array.isArray(ov.xAxis) && !ov.xAxis.some(obj => obj.type)) {
           ov.xAxis = ov.xAxis.map(obj => {
-            return Object.keys(obj).includes('type') ? obj : { ...obj, axisLabel: { formatter: labelFormatter } };
+            return Object.keys(obj).includes("type")
+              ? obj
+              : { ...obj, axisLabel: { formatter: labelFormatter } };
           });
-        } else if (typeof ov.yAxis === 'object' && !Object.keys(ov.yAxis).includes('type')) {
+        } else if (
+          typeof ov.yAxis === "object" &&
+          !Object.keys(ov.yAxis).includes("type")
+        ) {
           ov.yAxis = { ...ov.yAxis, axisLabel: { formatter: labelFormatter } };
-        } else if (typeof this.option.xAxis === 'object' && !Object.keys(this.option.xAxis).includes('type')) {
+        } else if (
+          typeof this.option.xAxis === "object" &&
+          !Object.keys(this.option.xAxis).includes("type")
+        ) {
           ov.xAxis = { ...ov.xAxis, axisLabel: { formatter: labelFormatter } };
         }
       }
       this.option = Object.assign({}, ov);
     }
-    if (this.type && this.labelFormat && (properties.has('labelFormat') || properties.has('type'))) {
+    if (
+      this.type &&
+      this.labelFormat &&
+      (properties.has("labelFormat") || properties.has("type"))
+    ) {
       const handle = this.getLabelFormatter(this.type);
       const labelFormatter = handle ? handle(this.labelFormat) : undefined;
       let ov = { ...this.option };
@@ -263,29 +341,40 @@ export default class LitChart extends LitElement {
       this.option = Object.assign({}, ov);
     }
     if (
-      properties.has('presetOpt') &&
+      properties.has("presetOpt") &&
       Object.keys(this.presetOpt).length &&
-      !isEqual(properties.get('presetOpt'), this.presetOpt)
+      !isEqual(properties.get("presetOpt"), this.presetOpt)
     ) {
       this.option = Object.assign({}, { ...this.option, ...this.presetOpt });
     }
     if (
-      properties.has('visualMap') && this.visualMap &&
+      properties.has("visualMap") &&
+      this.visualMap &&
       Object.keys(this.visualMap).length &&
-      !isEqual(properties.get('visualMap'), this.visualMap)
+      !isEqual(properties.get("visualMap"), this.visualMap)
     ) {
       if (this.option.visualMap) {
-        this.option = Object.assign({}, { ...this.option, visualMap: { ...this.option.visualMap, ...this.visualMap } });
+        this.option = Object.assign(
+          {},
+          {
+            ...this.option,
+            visualMap: { ...this.option.visualMap, ...this.visualMap }
+          }
+        );
       }
     }
     if (
-      properties.has('radar') && this.radar &&
+      properties.has("radar") &&
+      this.radar &&
       Object.keys(this.radar).length &&
-      !isEqual(properties.get('radar'), this.radar) &&
-      this.type === 'radar'
+      !isEqual(properties.get("radar"), this.radar) &&
+      this.type === "radar"
     ) {
       if (this.option.radar) {
-        this.option = Object.assign({}, { ...this.option, radar: { ...this.option.radar, ...this.radar } });
+        this.option = Object.assign(
+          {},
+          { ...this.option, radar: { ...this.option.radar, ...this.radar } }
+        );
       }
     }
   }
@@ -318,11 +407,18 @@ export default class LitChart extends LitElement {
       twoDirectionsArea: twoDirectionsArea.option
     };
     return { ...typeToOption[type] };
-  };
-  private getOptionByData = (type: string): ((chartData: ChartData<EChartOption<EChartOption.Series>>) => EChartOption) => {
-    const handles: Record<string, (chartData: ChartData<EChartOption<EChartOption.Series>>) => EChartOption > = {
-      'line': lineChart.getOptionByData,
-      'area': areaChart.getOptionByData,
+  }
+  private getOptionByData = (
+    type: string
+  ): ((
+    chartData: ChartData<EChartOption<EChartOption.Series>>
+  ) => EChartOption) => {
+    const handles: Record<
+      string,
+      (chartData: ChartData<EChartOption<EChartOption.Series>>) => EChartOption
+    > = {
+      line: lineChart.getOptionByData,
+      area: areaChart.getOptionByData,
       bar: barChart.getOptionByData,
       pie: pieChart.getOptionByData,
       donut: donutChart.getOptionByData,
@@ -334,14 +430,14 @@ export default class LitChart extends LitElement {
       twoDirectionsArea: twoDirectionsArea.getOptionByData
     };
     return handles[type];
-  };
+  }
   private getLegendFormatter = (type: string): Function => {
     const handles: Record<string, Function> = {
       pie: pieChart.legendFormatter,
       donut: pieChart.legendFormatter
     };
     return handles[type];
-  };
+  }
   private getAxisLabelFormatter = (type: string): Function => {
     const handles: Record<string, Function> = {
       bar: barChart.axisLabelFormat,
@@ -351,7 +447,7 @@ export default class LitChart extends LitElement {
       twoDirectionsArea: twoDirectionsArea.axisLabelFormat
     };
     return handles[type];
-  };
+  }
   private getLabelFormatter = (type: string): Function => {
     const handles: Record<string, Function> = {
       bar: barChart.labelFormat,
@@ -360,13 +456,13 @@ export default class LitChart extends LitElement {
       sankey: sankeyChart.labelFormat
     };
     return handles[type];
-  };
+  }
   private getOptionByChartdataset = (type: string): Function => {
     const handles: Record<string, Function> = {
       sankey: sankeyChart.getOptionByChartdataset
     };
     return handles[type];
-  };
+  }
   private getRadarFromDataset = (dataset: EChartOption.Dataset): Object => {
     let source = dataset.source;
     let indicator: Array<radarIndicator> = [];
@@ -381,7 +477,7 @@ export default class LitChart extends LitElement {
       });
     }
     return { indicator: indicator };
-  };
+  }
 }
 declare global {
   interface HTMLElementTagNameMap {

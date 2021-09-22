@@ -16,7 +16,11 @@ const barOption: EChartOption<EChartOption.SeriesBar> = {
   },
   xAxis: {
     type: 'category', // switch x and y just set yAxis type to 'category'
-    gridIndex: 0
+    gridIndex: 0,
+    axisLabel:{
+      rotate: 15,
+      interval: 0 // force to show all labels
+    }
   },
   yAxis: {
     gridIndex: 0
