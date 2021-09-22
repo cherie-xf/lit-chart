@@ -35,7 +35,7 @@ const labelFormat = (formatter: string): Function => {
 
 const getOptionByChartdataset = (
   dataset: EChartOption.Dataset,
-  theme = 'light',
+  // theme = 'light',
   labelFormatter: string = 'default'
 ): EChartOption => {
   let option = { ...sankeyOption };
