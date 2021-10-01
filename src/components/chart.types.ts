@@ -10,6 +10,7 @@ export interface ChartData<Series> {
 }
 export interface Radar {
   indicator: Array<radarIndicator>;
+  shape?: string;
 }
 
 export type radarIndicator = {

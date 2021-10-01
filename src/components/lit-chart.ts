@@ -24,7 +24,7 @@ import {
 import { EChartOption } from "echarts";
 import * as echarts from "echarts";
 import isEqual from "fast-deep-equal";
-import { ChartData, radarIndicator, Radar, ChartOption } from "./chart.types";
+import { ChartData, Radar, ChartOption } from "./chart.types";
 
 @customElement("lit-chart")
 export default class LitChart extends LitElement {
@@ -128,6 +128,22 @@ export default class LitChart extends LitElement {
     return resArr;
   }
 
+  private handleLineOnePoint(
+    series: EChartOption.Series[],
+    sourceLength: number
+  ) {
+    return series.map(obj => {
+      if (obj.type === "line") {
+        return {
+          ...obj,
+          showSymbol: sourceLength === 2 ? true : false,
+          symbolSize: 8
+        };
+      }
+      return obj;
+    });
+  }
+
   updated(properties: PropertyValues) {
     if (
       this.type &&
@@ -150,15 +166,25 @@ export default class LitChart extends LitElement {
           this.option.series &&
           source &&
           Array.isArray(source) &&
-          source.length &&
-          !["twoDirectionsLine", "twoDirectionsArea", "radar"].includes(
-            this.type
-          )
+          source.length
         ) {
-          this.option.series = this.multiplySeriesByData(
+          if (
+            ![
+              "twoDirectionsLine",
+              "twoDirectionsArea",
+              "radar",
+              "sankey"
+            ].includes(this.type)
+          ) {
+            this.option.series = this.multiplySeriesByData(
+              this.option.series,
+              source,
+              this.seriesLayoutBy
+            );
+          }
+          this.option.series = this.handleLineOnePoint(
             this.option.series,
-            source,
-            this.seriesLayoutBy
+            source.length
           );
         }
         this.option.dataset = this.chartDataset;
@@ -189,22 +215,29 @@ export default class LitChart extends LitElement {
         this.option.series &&
         source &&
         Array.isArray(source) &&
-        source.length &&
-        !["twoDirectionsLine", "twoDirectionsArea", "radar", "sankey"].includes(
-          this.type
-        )
+        source.length
       ) {
-        this.option.series = this.multiplySeriesByData(
+        if (
+          ![
+            "twoDirectionsLine",
+            "twoDirectionsArea",
+            "radar",
+            "sankey"
+          ].includes(this.type)
+        ) {
+          this.option.series = this.multiplySeriesByData(
+            this.option.series,
+            source,
+            this.seriesLayoutBy
+          );
+        }
+        this.option.series = this.handleLineOnePoint(
           this.option.series,
-          source,
-          this.seriesLayoutBy
+          source.length
         );
       }
       let ov = { ...this.option, dataset: this.chartDataset };
-      if (this.type === "radar" && !(this.radar && this.radar.indicator)) {
-        ov.radar = this.getRadarFromDataset(this.chartDataset);
-      }
-      if (this.type === "sankey") {
+      if (this.type === "sankey" || this.type === "radar") {
         ov = this.getOptionByChartdataset(this.type)(
           this.chartDataset,
           this.theme,
@@ -459,24 +492,10 @@ export default class LitChart extends LitElement {
   }
   private getOptionByChartdataset = (type: string): Function => {
     const handles: Record<string, Function> = {
-      sankey: sankeyChart.getOptionByChartdataset
+      sankey: sankeyChart.getOptionByChartdataset,
+      radar: radarChart.getOptionByChartdataset
     };
     return handles[type];
-  }
-  private getRadarFromDataset = (dataset: EChartOption.Dataset): Object => {
-    let source = dataset.source;
-    let indicator: Array<radarIndicator> = [];
-    if (Array.isArray(source) && source.length > 1) {
-      let max = Math.ceil(Math.max.apply(null, source[1]));
-      let names = source[0] as Array<string>;
-      indicator = names.map(key => {
-        return {
-          name: key,
-          max: max
-        };
-      });
-    }
-    return { indicator: indicator };
   }
 }
 declare global {
