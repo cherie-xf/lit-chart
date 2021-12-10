@@ -1,1 +1,0 @@
-export { default as LitChart } from './components/lit-chart';

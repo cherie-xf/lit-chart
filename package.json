@@ -1,18 +1,18 @@
 {
   "name": "@cherie-xf/lit-chart",
   "version": "0.0.1",
-  "main": "dist/lit-chart.es.js",
+  "main": "dist/index.es.js",
   "exports": {
-    ".": "./dist/lit-chart.es.js"
+    ".": "./dist/index.es.js"
   },
-  "types": "types/lit-chart.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "lib": "tsc  --emitDeclarationOnly  --outDir dist",
+    "build": "tsc && vite build && npm run lib",
     "clean": "rm -rf node_modules",
     "reinstall": "npm run clean && npm install",
     "prepublishOnly": "npm run build"
