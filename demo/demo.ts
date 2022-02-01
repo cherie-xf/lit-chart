@@ -1,7 +1,7 @@
 import { customElement, LitElement, css, html, property } from 'lit-element';
 // import '..src';
 import '../index';
-import { EChartOption } from 'echarts';
+import { DatasetComponentOption, EChartsOption } from 'echarts';
 
 @customElement('lit-chart-demo')
 export default class LitChartDemo extends LitElement {
@@ -22,7 +22,7 @@ export default class LitChartDemo extends LitElement {
       cursor: pointer;
     }
   `;
-  @property({ reflect: true }) chartDataset: EChartOption.Dataset | undefined;
+  @property({ reflect: true }) chartDataset: DatasetComponentOption | undefined;
   @property({ type: String, reflect: true }) type: string | undefined; // default chart type is line
   render() {
     this.type = 'line';

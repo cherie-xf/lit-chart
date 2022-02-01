@@ -1,7 +1,7 @@
-import { EChartOption } from 'echarts';
-import { ChartData } from '../chart.types';
+import { EChartsOption, LineSeriesOption } from 'echarts';
+import { ChartData, ChartTypeOption } from '../chart.types';
 import { getFormattedValue } from '../helper';
-const lineOption: EChartOption<EChartOption.SeriesLine> = {
+const lineOption: ChartTypeOption = {
   tooltip: {
     trigger: 'axis'
   },
@@ -37,40 +37,48 @@ const lineOption: EChartOption<EChartOption.SeriesLine> = {
   ]
 };
 
-const areaOption: EChartOption<EChartOption.SeriesLine> = {
+const areaOption: ChartTypeOption = {
   ...lineOption,
-  series: [{ type: 'line', areaStyle: { opacity: 0.4 }, smooth: true, showSymbol: false, step: false }]
+  series: [
+    {
+      type: 'line',
+      areaStyle: { opacity: 0.4 },
+      smooth: true,
+      showSymbol: false,
+      step: false
+    }
+  ]
 };
 
-const getOptionByData = (opt: EChartOption<EChartOption.SeriesLine>) => (
-  chartData: ChartData<EChartOption.SeriesLine>
-): EChartOption => {
-  let option = { ...opt };
-  let serieObj = option.series ? option.series[0] : {};
-  option.series = chartData.series.map(obj => ({
-    ...serieObj,
-    ...obj
-  }));
-  if (chartData.xAxis) {
-    option.xAxis = {
-      ...option.xAxis,
-      ...chartData.xAxis
-    };
-  }
-  if (chartData.yAxis) {
-    option.yAxis = {
-      ...option.yAxis,
-      ...chartData.yAxis
-    };
-  }
-  if (chartData.legend) {
-    option.legend = {
-      ...option.legend,
-      ...chartData.legend
-    };
-  }
-  return option;
-};
+const getOptionByData =
+  (opt: ChartTypeOption) =>
+  (chartData: ChartData<LineSeriesOption>): EChartsOption => {
+    let option = { ...opt };
+    let serieObj = option.series ? option.series[0] : {};
+    option.series = chartData.series.map(obj => ({
+      ...serieObj,
+      ...obj
+    })) as LineSeriesOption[];
+    if (chartData.xAxis) {
+      option.xAxis = {
+        ...option.xAxis,
+        ...chartData.xAxis
+      };
+    }
+    if (chartData.yAxis) {
+      option.yAxis = {
+        ...option.yAxis,
+        ...chartData.yAxis
+      };
+    }
+    if (chartData.legend) {
+      option.legend = {
+        ...option.legend,
+        ...chartData.legend
+      };
+    }
+    return option;
+  };
 const axisLabelFormat = (formatter: string): Function => {
   return function (val: number) {
     return getFormattedValue(val, formatter);

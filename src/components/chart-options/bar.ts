@@ -1,7 +1,7 @@
-import { EChartOption } from 'echarts';
-import { ChartData } from '../chart.types';
+import { BarSeriesOption, SeriesOption } from 'echarts';
+import { ChartData, ChartOption, ChartTypeOption } from '../chart.types';
 import { getFormattedValue } from '../helper';
-const barOption: EChartOption<EChartOption.SeriesBar> = {
+const barOption: ChartTypeOption = {
   grid: {
     containLabel: true
   },
@@ -17,7 +17,7 @@ const barOption: EChartOption<EChartOption.SeriesBar> = {
   xAxis: {
     type: 'category', // switch x and y just set yAxis type to 'category'
     gridIndex: 0,
-    axisLabel:{
+    axisLabel: {
       rotate: 15,
       interval: 0 // force to show all labels
     }
@@ -35,13 +35,15 @@ const barOption: EChartOption<EChartOption.SeriesBar> = {
   ]
 };
 
-const getOptionByData = (chartData: ChartData<EChartOption.SeriesBar>): EChartOption => {
+const getOptionByData = (
+  chartData: ChartData<BarSeriesOption>
+): ChartOption => {
   let option = { ...barOption };
   let serieObj = option.series ? option.series[0] : {};
   option.series = chartData.series.map(obj => ({
     ...serieObj,
     ...obj
-  }));
+  })) as SeriesOption[];
   if (chartData.xAxis) {
     option.xAxis = {
       ...option.xAxis,
@@ -74,4 +76,9 @@ const labelFormat = (formatter: string): Function => {
   };
 };
 
-export default { option: { ...barOption }, getOptionByData, axisLabelFormat, labelFormat: labelFormat };
+export const barChart = {
+  option: { ...barOption },
+  getOptionByData,
+  axisLabelFormat,
+  labelFormat
+};

@@ -1,6 +1,6 @@
-import { EChartOption } from 'echarts';
-import { ChartData } from '../chart.types';
-const scatterOption: EChartOption<EChartOption.SeriesScatter> = {
+import { EChartsOption, ScatterSeriesOption } from 'echarts';
+import { ChartData, ChartTypeOption } from '../chart.types';
+const scatterOption: ChartTypeOption = {
   tooltip: {
     trigger: 'axis'
   },
@@ -14,14 +14,16 @@ const scatterOption: EChartOption<EChartOption.SeriesScatter> = {
   ]
 };
 
-const getOptionByData = (chartData: ChartData<EChartOption.SeriesScatter>): EChartOption => {
+const getOptionByData = (
+  chartData: ChartData<ScatterSeriesOption>
+): EChartsOption => {
   let option = { ...scatterOption };
   let serieObj = option.series ? option.series[0] : {};
   option.series = chartData.series.map(obj => ({
     ...serieObj,
     ...obj
-  }));
+  })) as ScatterSeriesOption[];
   return option;
 };
 
-export default { option: { ...scatterOption }, getOptionByData };
+export const scatterChart = { option: { ...scatterOption }, getOptionByData };

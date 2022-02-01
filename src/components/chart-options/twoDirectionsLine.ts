@@ -1,7 +1,7 @@
-import { EChartOption } from 'echarts';
-import { ChartData } from '../chart.types';
+import { EChartsOption, LineSeriesOption } from 'echarts';
+import { ChartData, ChartTypeOption } from '../chart.types';
 import { getFormattedValue } from '../helper';
-const twoDirectionsLineOption: EChartOption<EChartOption.SeriesLine> = {
+const twoDirectionsLineOption: ChartTypeOption = {
   tooltip: {
     trigger: 'axis'
   },
@@ -39,10 +39,16 @@ const twoDirectionsLineOption: EChartOption<EChartOption.SeriesLine> = {
       smooth: true,
       showSymbol: false
     },
-    { type: 'line', smooth: true, xAxisIndex: 1, yAxisIndex: 1, showSymbol: false }
+    {
+      type: 'line',
+      smooth: true,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      showSymbol: false
+    }
   ]
 };
-const twoDirectionsAreaOption: EChartOption<EChartOption.SeriesLine> = {
+const twoDirectionsAreaOption: ChartTypeOption = {
   ...twoDirectionsLineOption,
   series: [
     {
@@ -51,39 +57,46 @@ const twoDirectionsAreaOption: EChartOption<EChartOption.SeriesLine> = {
       smooth: true,
       showSymbol: false
     },
-    { type: 'line', areaStyle: { opacity: 0.4 }, smooth: true, xAxisIndex: 1, yAxisIndex: 1, showSymbol: false }
+    {
+      type: 'line',
+      areaStyle: { opacity: 0.4 },
+      smooth: true,
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      showSymbol: false
+    }
   ]
 };
 
-const getOptionByData = (opt: EChartOption<EChartOption.SeriesLine>) => (
-  chartData: ChartData<EChartOption.SeriesLine>
-): EChartOption => {
-  let option = { ...opt };
-  let serieObj = option.series ? option.series[0] : {};
-  option.series = chartData.series.map(obj => ({
-    ...serieObj,
-    ...obj
-  }));
-  if (chartData.xAxis) {
-    option.xAxis = {
-      ...option.xAxis,
-      ...chartData.xAxis
-    };
-  }
-  if (chartData.yAxis) {
-    option.yAxis = {
-      ...option.yAxis,
-      ...chartData.yAxis
-    };
-  }
-  if (chartData.legend) {
-    option.legend = {
-      ...option.legend,
-      ...chartData.legend
-    };
-  }
-  return option;
-};
+const getOptionByData =
+  (opt: ChartTypeOption) =>
+  (chartData: ChartData<LineSeriesOption>): EChartsOption => {
+    let option = { ...opt };
+    let serieObj = option.series ? option.series[0] : {};
+    option.series = chartData.series.map(obj => ({
+      ...serieObj,
+      ...obj
+    })) as LineSeriesOption[];
+    if (chartData.xAxis) {
+      option.xAxis = {
+        ...option.xAxis,
+        ...chartData.xAxis
+      };
+    }
+    if (chartData.yAxis) {
+      option.yAxis = {
+        ...option.yAxis,
+        ...chartData.yAxis
+      };
+    }
+    if (chartData.legend) {
+      option.legend = {
+        ...option.legend,
+        ...chartData.legend
+      };
+    }
+    return option;
+  };
 
 const axisLabelFormat = (formatter: string): Function => {
   return function (val: number) {

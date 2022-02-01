@@ -1,6 +1,10 @@
-import { EChartOption } from 'echarts';
-import { ChartData } from '../chart.types';
-const heatmapOption: EChartOption<EChartOption.SeriesHeatmap> = {
+import {
+  EChartsOption,
+  HeatmapSeriesOption,
+  VisualMapComponentOption
+} from 'echarts';
+import { ChartData, ChartTypeOption } from '../chart.types';
+const heatmapOption: ChartTypeOption = {
   tooltip: {
     position: 'top'
   },
@@ -46,14 +50,18 @@ const heatmapOption: EChartOption<EChartOption.SeriesHeatmap> = {
   ]
 };
 
-const getOptionByData = (chartData: ChartData<EChartOption.SeriesHeatmap>): EChartOption => {
+const getOptionByData = (
+  chartData: ChartData<HeatmapSeriesOption>
+): EChartsOption => {
   let option = { ...heatmapOption };
   let serieObj = option.series ? option.series[0] : {};
-  let visualMapObj: EChartOption.VisualMap = option.visualMap ? option.visualMap[1] : {};
+  let visualMapObj: VisualMapComponentOption = option.visualMap
+    ? option.visualMap[1]
+    : {};
   option.series = chartData.series.map(obj => ({
     ...serieObj,
     ...obj
-  }));
+  })) as HeatmapSeriesOption[];
   if (chartData.xAxis) {
     option.xAxis = {
       ...option.xAxis,
@@ -72,13 +80,13 @@ const getOptionByData = (chartData: ChartData<EChartOption.SeriesHeatmap>): ECha
       ...chartData.legend
     };
   }
-  if (chartData.visualMap && chartData.visualMap.length) {
+  if (chartData.visualMap && Array.isArray(chartData.visualMap)) {
     option.visualMap = chartData.visualMap.map(obj => ({
       ...visualMapObj,
       ...obj
-    })) as Array<EChartOption.VisualMap>;
+    })) as VisualMapComponentOption[];
   }
   return option;
 };
 
-export default { option: { ...heatmapOption }, getOptionByData };
+export const heatmapChart = { option: { ...heatmapOption }, getOptionByData };

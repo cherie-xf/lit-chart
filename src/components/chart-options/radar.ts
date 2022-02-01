@@ -1,10 +1,15 @@
-import { EChartOption } from "echarts";
-import { ChartData, radarIndicator, Radar } from "../chart.types";
-import { getFormattedValue } from "../helper";
-const radarOption: EChartOption<EChartOption.SeriesRadar> = {
+import {
+  DatasetComponentOption,
+  EChartsOption,
+  RadarComponentOption,
+  RadarSeriesOption
+} from 'echarts';
+import { ChartData, ChartTypeOption } from '../chart.types';
+import { getFormattedValue } from '../helper';
+const radarOption: ChartTypeOption = {
   tooltip: {},
   legend: {
-    type: "scroll",
+    type: 'scroll',
     itemGap: 8,
     itemWidth: 16,
     itemHeight: 8
@@ -14,7 +19,7 @@ const radarOption: EChartOption<EChartOption.SeriesRadar> = {
   },
   series: [
     {
-      type: "radar",
+      type: 'radar',
       areaStyle: {
         opacity: 0.4
       }
@@ -23,9 +28,9 @@ const radarOption: EChartOption<EChartOption.SeriesRadar> = {
 };
 
 const getOptionByChartdataset = (
-  dataset: EChartOption.Dataset
-): EChartOption => {
-  const source = dataset.source;
+  dataset: DatasetComponentOption
+): ChartTypeOption => {
+  const source = dataset.source as Array<any>;
   let option = { ...radarOption };
   if (Array.isArray(source) && source.length > 1) {
     const names = source[0].slice(1);
@@ -41,21 +46,21 @@ const getOptionByChartdataset = (
             value: row
           }))
         };
-      });
+      }) as RadarSeriesOption[];
     }
   }
   return option;
 };
 
 const getOptionByData = (
-  chartData: ChartData<EChartOption.SeriesRadar>
-): EChartOption => {
+  chartData: ChartData<RadarSeriesOption>
+): EChartsOption => {
   let option = { ...radarOption };
   let serieObj = option.series ? option.series[0] : {};
   option.series = chartData.series.map(obj => ({
     ...serieObj,
     ...obj
-  }));
+  })) as RadarSeriesOption[];
   if (chartData.legend) {
     option.legend = {
       ...option.legend,
@@ -71,8 +76,11 @@ const labelFormat = (formatter: string): Function => {
   };
 };
 
-const getRadarFromDataset = (names: string[], rows: Array<number[]>): Radar => {
-  let indicator: Array<radarIndicator> = [];
+const getRadarFromDataset = (
+  names: string[],
+  rows: Array<number[]>
+): RadarComponentOption => {
+  let indicator = [];
   if (rows.length > 1) {
     indicator = names.map((key, idx) => {
       let data = rows.map((row: number[]) => row[idx]);
@@ -90,10 +98,10 @@ const getRadarFromDataset = (names: string[], rows: Array<number[]>): Radar => {
       };
     });
   }
-  return { indicator: indicator, shape: "circle" };
+  return { indicator: indicator, shape: 'circle' };
 };
 
-export default {
+export const radarChart = {
   option: { ...radarOption },
   getOptionByData,
   labelFormat,
